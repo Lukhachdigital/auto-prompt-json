@@ -1,14 +1,7 @@
-// Fix: Correctly import useState and useEffect from React to resolve 'Cannot find name' errors.
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import Input from './shared/Input';
 import Button from './shared/Button';
-
-interface SettingsTabProps {
-  apiKey: string;
-  onApiKeyChange: (newKey: string) => void;
-  chatGptApiKey: string;
-  onChatGptApiKeyChange: (newKey: string) => void;
-}
 
 const SocialLink: React.FC<{ platform: string, url:string, handle: string, icon: React.ReactNode }> = ({ platform, url, handle, icon }) => (
   <a
@@ -26,32 +19,31 @@ const SocialLink: React.FC<{ platform: string, url:string, handle: string, icon:
   </a>
 );
 
-const SettingsTab: React.FC<SettingsTabProps> = ({ apiKey, onApiKeyChange, chatGptApiKey, onChatGptApiKeyChange }) => {
-  const [tempApiKey, setTempApiKey] = useState(apiKey);
-  const [tempChatGptApiKey, setTempChatGptApiKey] = useState(chatGptApiKey);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showGptSuccess, setShowGptSuccess] = useState(false);
+interface SettingsTabProps {
+  googleApiKey: string;
+  openaiApiKey: string;
+  onGoogleKeySave: (key: string) => void;
+  onOpenaiKeySave: (key: string) => void;
+}
 
-  useEffect(() => {
-    setTempApiKey(apiKey);
-  }, [apiKey]);
+const SettingsTab: React.FC<SettingsTabProps> = ({ googleApiKey, openaiApiKey, onGoogleKeySave, onOpenaiKeySave }) => {
+  const [googleKeyInput, setGoogleKeyInput] = useState(googleApiKey);
+  const [openaiKeyInput, setOpenaiKeyInput] = useState(openaiApiKey);
+  const [googleKeyStatus, setGoogleKeyStatus] = useState('');
+  const [openaiKeyStatus, setOpenaiKeyStatus] = useState('');
 
-  useEffect(() => {
-    setTempChatGptApiKey(chatGptApiKey);
-  }, [chatGptApiKey]);
-
-
-  const handleSave = () => {
-    onApiKeyChange(tempApiKey);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 2000);
+  const handleSaveGoogle = () => {
+    onGoogleKeySave(googleKeyInput);
+    setGoogleKeyStatus('Đã lưu!');
+    setTimeout(() => setGoogleKeyStatus(''), 2000);
   };
-  
-  const handleGptSave = () => {
-    onChatGptApiKeyChange(tempChatGptApiKey);
-    setShowGptSuccess(true);
-    setTimeout(() => setShowGptSuccess(false), 2000);
+
+  const handleSaveOpenai = () => {
+    onOpenaiKeySave(openaiKeyInput);
+    setOpenaiKeyStatus('Đã lưu!');
+    setTimeout(() => setOpenaiKeyStatus(''), 2000);
   };
+
 
   const YoutubeIcon = (
     <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="32" height="32" viewBox="0 0 48 48">
@@ -82,55 +74,50 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ apiKey, onApiKeyChange, chatG
 
   return (
     <div className="space-y-8 py-4">
-      
-      <div className="max-w-md mx-auto">
-        <div className="space-y-4 bg-slate-900/50 p-6 rounded-lg border border-slate-700">
-          <h3 className="text-xl font-bold text-white mb-4">
-            Cấu hình API Key 
-            <span className="text-sm font-normal text-gray-400 ml-1">(Nhập 1 trong 2 API Key bên dưới)</span>
-          </h3>
-          
-          {/* Google AI API Key */}
+      {/* API Key Section */}
+      <div className="max-w-xl mx-auto bg-slate-900/50 p-4 sm:p-6 rounded-lg border border-slate-700">
+        <h3 className="text-xl font-bold text-white mb-2 text-center">Cấu hình API Key</h3>
+        <p className="text-center text-gray-400 mb-6 text-sm">(nhập 1 trong 2 API Key bên dưới)</p>
+        
+        <div className="space-y-6">
+          {/* Google API Key */}
           <div className="space-y-2">
-            <div className="flex justify-between items-center mb-1">
-              <label className="block text-sm font-semibold">Google AI API Key:</label>
-              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:text-blue-300 hover:underline transition-colors">
-                Lấy API Key
-              </a>
+            <div className="flex justify-between items-center">
+              <label htmlFor="google-api-key" className="font-semibold text-white">Google AI API Key:</label>
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:underline">Lấy API Key</a>
             </div>
-            <Input
+            <Input 
+              id="google-api-key"
               type="password"
               placeholder="Enter your Google AI API key"
-              value={tempApiKey}
-              onChange={(e) => setTempApiKey(e.target.value)}
+              value={googleKeyInput}
+              onChange={(e) => setGoogleKeyInput(e.target.value)}
             />
-            <Button onClick={handleSave} className="w-full">
-              {showSuccess ? 'Saved!' : 'Save Google Key'}
+            <Button onClick={handleSaveGoogle} className="w-full">
+              {googleKeyStatus || 'Save Google Key'}
             </Button>
           </div>
-          
-          {/* ChatGPT API Key */}
-          <div className="space-y-2 pt-4">
-            <div className="flex justify-between items-center mb-1">
-               <label className="block text-sm font-semibold">Chat GPT API Key:</label>
-               <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:text-blue-300 hover:underline transition-colors">
-                 Lấy API Key
-               </a>
+
+          {/* OpenAI API Key */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <label htmlFor="openai-api-key" className="font-semibold text-white">Chat GPT API Key:</label>
+              <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:underline">Lấy API Key</a>
             </div>
-             <Input
+            <Input
+              id="openai-api-key"
               type="password"
               placeholder="Enter your Chat GPT API key"
-              value={tempChatGptApiKey}
-              onChange={(e) => setTempChatGptApiKey(e.target.value)}
+              value={openaiKeyInput}
+              onChange={(e) => setOpenaiKeyInput(e.target.value)}
             />
-            <Button onClick={handleGptSave} className="w-full">
-              {showGptSuccess ? 'Saved!' : 'Save Chat GPT Key'}
+            <Button onClick={handleSaveOpenai} className="w-full">
+               {openaiKeyStatus || 'Save Chat GPT Key'}
             </Button>
           </div>
-
         </div>
       </div>
-
+      
       {/* Contact Section */}
       <div>
         <h3 className="text-xl font-bold text-white mb-4 text-center">Contact Information</h3>
