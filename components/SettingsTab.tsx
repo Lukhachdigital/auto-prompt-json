@@ -1,4 +1,3 @@
-
 // Fix: Correctly import useState and useEffect from React to resolve 'Cannot find name' errors.
 import React, { useState, useEffect } from 'react';
 import Input from './shared/Input';
@@ -136,13 +135,13 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ apiKey, onApiKeyChange, chatG
       <div>
         <h3 className="text-xl font-bold text-white mb-4 text-center">Contact Information</h3>
         <p className="text-center text-gray-400 mb-8">
-          Connect with Lữ Khách for support, updates, and more tutorials.
+          Connect with Làm Youtube AI for support, updates, and more tutorials.
         </p>
       </div>
       <div className="max-w-md mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
         <SocialLink platform="Youtube" handle="@lukhach-digital" url="https://youtube.com/@lukhach-digital" icon={YoutubeIcon} />
-        <SocialLink platform="Facebook" handle="lukhach.com.vn" url="https://facebook.com/lukhach.com.vn" icon={FacebookIcon} />
-        <SocialLink platform="Tiktok" handle="@lukhach.com.vn" url="https://tiktok.com/@lukhach.com.vn" icon={TiktokIcon} />
+        <SocialLink platform="Facebook" handle="huynhxuyenson" url="https://facebook.com/huynhxuyenson" icon={FacebookIcon} />
+        <SocialLink platform="Tiktok" handle="@lamyoutubeai" url="https://www.tiktok.com/@lamyoutubeai" icon={TiktokIcon} />
         <SocialLink platform="Zalo" handle="0979.007.367" url="https://zalo.me/0979007367" icon={ZaloIcon} />
       </div>
     </div>
