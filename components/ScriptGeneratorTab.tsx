@@ -78,6 +78,49 @@ const parseDurationToSeconds = (durationStr: string): number | null => {
   return totalSeconds > 0 ? totalSeconds : null;
 };
 
+// Helper function to create user-friendly error messages from API responses
+const getApiErrorMessage = (error: unknown): string => {
+  let message = 'An unknown error occurred during generation.';
+  if (error instanceof Error) {
+    message = error.message;
+  } else if (typeof error === 'string') {
+    message = error;
+  }
+
+  // Try to parse Google Gemini's JSON-like error messages
+  try {
+    const jsonMatch = message.match(/\{.*\}/s); // Use 's' flag to match across newlines
+    if (jsonMatch) {
+      const errorObj = JSON.parse(jsonMatch[0]);
+      const nestedError = errorObj.error || errorObj;
+
+      if (nestedError.status === 'UNAVAILABLE' || nestedError.code === 503) {
+        return 'Lỗi từ Google AI: Model đang bị quá tải. Vui lòng thử lại sau ít phút.';
+      }
+      if (nestedError.message && (nestedError.message.includes('API key not valid') || nestedError.message.includes('API_KEY_INVALID'))) {
+        return 'Lỗi API Google: API key không hợp lệ. Vui lòng kiểm tra lại trong tab Profile.';
+      }
+      if (nestedError.message) {
+        // Return a cleaner version of other Google API errors
+        return `Lỗi từ Google AI: ${nestedError.message}`;
+      }
+    }
+  } catch (e) {
+    // Ignore parsing errors and fall through
+  }
+
+  // Check for common OpenAI error messages
+  if (message.includes('Incorrect API key')) {
+    return 'Lỗi API OpenAI: API key không hợp lệ. Vui lòng kiểm tra lại trong tab Profile.';
+  }
+  if (message.toLowerCase().includes('rate limit')) {
+    return 'Lỗi API OpenAI: Bạn đã vượt quá giới hạn sử dụng. Vui lòng thử lại sau hoặc kiểm tra gói cước của bạn.';
+  }
+  
+  // Fallback for unhandled errors
+  return `Không thể tạo kịch bản. Vui lòng kiểm tra API key và prompt. Chi tiết lỗi: ${message}`;
+};
+
 
 const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ googleApiKey, openaiApiKey }) => {
   const [idea, setIdea] = useState('');
@@ -281,8 +324,7 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
 
     } catch (e) {
       console.error(e);
-      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred during generation.';
-      setError(`Failed to generate script. Please check your API key and prompt. Error: ${errorMessage}`);
+      setError(getApiErrorMessage(e));
     } finally {
       setIsGenerating(false);
     }
