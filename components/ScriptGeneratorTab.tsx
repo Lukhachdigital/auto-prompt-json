@@ -6,12 +6,39 @@ import Input from './shared/Input';
 
 interface ScriptGeneratorTabProps {
   apiKey: string;
+  chatGptApiKey: string;
 }
+
+// Define the new, detailed structure for the prompt object
+interface PromptObject {
+  Objective: string;
+  Persona: {
+    Role: string;
+    Tone: string;
+    Knowledge_Level: string;
+  };
+  Task_Instructions: string[];
+  Constraints: string[];
+  Input_Examples: Array<{
+    Input: string;
+    Expected_Output: string;
+  }>;
+  Output_Format: {
+    Type: string;
+    Structure: {
+      character_details: string;
+      setting_details: string;
+      key_action: string;
+      camera_direction: string;
+    };
+  };
+}
+
 
 interface Scene {
   scene: number;
   description: string;
-  prompt: string;
+  prompt: PromptObject; // Update to use the new interface
 }
 
 const ApiKeyPrompt: React.FC = () => (
@@ -50,17 +77,74 @@ const parseDurationToSeconds = (durationStr: string): number | null => {
 };
 
 
-const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ apiKey }) => {
+const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ apiKey, chatGptApiKey }) => {
   const [idea, setIdea] = useState('');
   const [duration, setDuration] = useState('');
   const [results, setResults] = useState<Scene[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copiedScene, setCopiedScene] = useState<number | null>(null);
+  const [apiProvider, setApiProvider] = useState<'google' | 'openai'>('google');
+
+  const systemInstruction = `You are an expert scriptwriter and AI prompt engineer. Your task is to transform a user's simple idea into a detailed script. For each scene, you must generate a highly structured, detailed JSON prompt object designed to guide another AI in creating a consistent video clip.
+
+**INTERNAL MONOLOGUE & CONSISTENCY PLAN (CRITICAL):**
+Before generating the JSON output, you MUST first create an internal plan. This plan will NOT be part of the final output.
+1.  **Define Core Entities:** Create a detailed "entity sheet" for all main characters and key locations.
+    *   **For Characters:** Specify their species, gender, age, clothing, hair color/style, facial features, unique marks (e.g., "a 25-year-old male explorer with short, messy brown hair, a rugged leather jacket over a grey t-shirt, cargo pants, and a noticeable scar above his left eyebrow").
+    *   **For Locations:** Describe the key elements, atmosphere, lighting, and time of day (e.g., "a dense, Amazonian jungle at dusk, with thick fog clinging to the ground, giant glowing mushrooms providing an eerie blue light").
+2.  **Reference the Plan:** For every scene you generate, you MUST refer back to this entity sheet and use the exact descriptive details to populate the fields in the structured JSON prompt. This is the key to consistency.
+
+**LANGUAGE REQUIREMENT (CRITICAL):**
+- The top-level "description" field for each scene MUST be in VIETNAMESE.
+- All content inside the nested "prompt" JSON object MUST be in ENGLISH.
+
+**STRUCTURED PROMPT FOR EACH SCENE (CRITICAL):**
+For each scene, the "prompt" field must be a JSON object that strictly adheres to the following structure. You will populate it with details from your internal plan and the specific actions of the scene.
+
+{
+  "Objective": "State the primary goal for the AI video generator for this specific scene. E.g., 'To create a photorealistic, 8-second, 4K cinematic clip of the protagonist discovering a hidden temple.'",
+  "Persona": {
+    "Role": "Define the role the video AI should adopt. E.g., 'An expert cinematographer and visual effects artist.'",
+    "Tone": "Specify the desired artistic tone. E.g., 'Suspenseful, epic, mysterious, dramatic.'",
+    "Knowledge_Level": "Assume the AI has expert-level knowledge. E.g., 'Expert in Hollywood-style visual storytelling.'"
+  },
+  "Task_Instructions": [
+    "Provide a bulleted list of step-by-step instructions for the AI. Be very specific. Use details from your consistency plan.",
+    "Example 1: 'Depict the main character, a 25-year-old male explorer with a scar over his left eye, pushing aside thick jungle vines.'",
+    "Example 2: 'The setting is the Amazonian jungle at dusk, with eerie blue light from glowing mushrooms illuminating the scene.'",
+    "Example 3: 'Use a slow, dramatic dolly zoom camera shot to build tension as he reveals the temple entrance.'"
+  ],
+  "Constraints": [
+    "List any rules or limitations.",
+    "E.g., 'The video clip must be exactly 8 seconds long.'",
+    "E.g., 'Do not show any other characters in this scene.'",
+    "E.g., 'Maintain a photorealistic style throughout.'"
+  ],
+  "Input_Examples": [
+    {
+      "Input": "A simple text description of a similar, successful scene.",
+      "Expected_Output": "A brief description of the high-quality video that should result."
+    }
+  ],
+  "Output_Format": {
+    "Type": "Specify the final output type. E.g., 'video/mp4'",
+    "Structure": {
+        "character_details": "A concise summary of the character's appearance and gear for this scene, copied from your plan.",
+        "setting_details": "A concise summary of the location, time, and atmosphere, copied from your plan.",
+        "key_action": "The single most important action occurring in the scene.",
+        "camera_direction": "The specific camera shot to use (e.g., 'dolly zoom', 'crane shot', 'tracking shot')."
+    }
+  }
+}`;
 
   const handleGenerate = async () => {
-    if (!apiKey) {
-      setError("Please set your API key in the 'Profile' tab.");
+    if (apiProvider === 'google' && !apiKey) {
+      setError("Please set your Google AI API key in the 'Profile' tab.");
+      return;
+    }
+    if (apiProvider === 'openai' && !chatGptApiKey) {
+      setError("Please set your Chat GPT API key in the 'Profile' tab.");
       return;
     }
     if (!idea.trim()) {
@@ -72,77 +156,80 @@ const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ apiKey }) => {
     setError(null);
     setResults([]);
 
+    let userPrompt = `Generate a script and video prompts based on these details:\n\nIdea: "${idea}"`;
+    const totalSeconds = parseDurationToSeconds(duration);
+    if (totalSeconds) {
+        const requiredScenes = Math.ceil(totalSeconds / 8);
+        userPrompt += `\n\nRequirement: The final video should be approximately ${duration} (${totalSeconds} seconds). To achieve this, you MUST generate exactly ${requiredScenes} scenes, as each scene will become an 8-second video clip.`;
+    } else {
+        userPrompt += `\n\nDesired Video Duration: "${duration || 'not specified'}"`;
+    }
+
     try {
-      const ai = new GoogleGenAI({ apiKey });
-
-      const systemInstruction = `You are an expert scriptwriter and AI prompt engineer. Your task is to transform a user's simple idea into a detailed, thrilling script with corresponding high-quality video prompts.
-
-**LANGUAGE REQUIREMENT (CRITICAL):**
-- The "description" field MUST be written in VIETNAMESE. This is for the user to understand the scene.
-- The "prompt" field MUST be written in ENGLISH. This is for the AI video generator.
-
-- **Storytelling & Scene Generation:**
-    - Develop a compelling narrative from the user's idea, with a clear beginning, rising action, a climax, and a resolution.
-    - If the user specifies a number of scenes, generate exactly that number. Otherwise, aim for 10-20 scenes for a complete story.
-    - Create thrilling, diverse scenes with unexpected twists and dramatic moments.
-
-- **Output Format:** Your final output MUST be a valid JSON array of objects, with no other text or markdown.
-
-- **JSON Object Schema:** Each object must strictly follow this structure: { "scene": number, "description": "string in VIETNAMESE", "prompt": "string in ENGLISH" }.
-
-- **Video Prompt Crafting (Crucial - IN ENGLISH):**
-    - For each scene, generate a single, highly detailed prompt.
-    - **Cinematic Quality:** Use terms like "cinematic shot," "4K, high detail," "photorealistic."
-    - **Camera Work:** Include specific camera movements and angles (e.g., "dynamic tracking shot," "extreme slow-motion close-up," "sweeping aerial drone shot").
-    - **Vivid Details:** Describe lighting, environment, character appearance, emotions, and actions with rich detail.
-    - **Character Consistency (Critical):** If a character appears in multiple scenes, you MUST describe their appearance with extreme consistency (clothing, hair, facial features, etc.). Repeat these details in every prompt where the character is present.
-    - **Setting Consistency:** Ensure setting details remain consistent across all prompts.
-
-- **Goal:** The final JSON should be directly usable. The user will copy each ENGLISH prompt to generate video scenes, using the VIETNAMESE description for context.`;
-      
-      let userPrompt = `Generate a script and video prompts based on these details:\n\nIdea: "${idea}"`;
-
-      const totalSeconds = parseDurationToSeconds(duration);
-      if (totalSeconds) {
-          const requiredScenes = Math.ceil(totalSeconds / 8);
-          userPrompt += `\n\nRequirement: The final video should be approximately ${duration} (${totalSeconds} seconds). To achieve this, you MUST generate exactly ${requiredScenes} scenes, as each scene will become an 8-second video clip.`;
-      } else {
-          userPrompt += `\n\nDesired Video Duration: "${duration || 'not specified'}"`;
-      }
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: userPrompt,
-        config: {
-          systemInstruction,
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                scene: {
-                  type: Type.INTEGER,
-                  description: "The scene number, starting from 1.",
+      if (apiProvider === 'google') {
+        const ai = new GoogleGenAI({ apiKey });
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: userPrompt,
+          config: {
+            systemInstruction,
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  scene: { type: Type.INTEGER, description: "The scene number, starting from 1." },
+                  description: { type: Type.STRING, description: "A VIETNAMESE description of what happens in this scene." },
+                  prompt: {
+                    type: Type.OBJECT,
+                    description: "A structured JSON prompt object for the video generation AI.",
+                    properties: {
+                      Objective: { type: Type.STRING }, Persona: { type: Type.OBJECT, properties: { Role: { type: Type.STRING }, Tone: { type: Type.STRING }, Knowledge_Level: { type: Type.STRING } } }, Task_Instructions: { type: Type.ARRAY, items: { type: Type.STRING } }, Constraints: { type: Type.ARRAY, items: { type: Type.STRING } }, Input_Examples: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { Input: { type: Type.STRING }, Expected_Output: { type: Type.STRING } } } }, Output_Format: { type: Type.OBJECT, properties: { Type: { type: Type.STRING }, Structure: { type: Type.OBJECT, properties: { character_details: { type: Type.STRING }, setting_details: { type: Type.STRING }, key_action: { type: Type.STRING }, camera_direction: { type: Type.STRING } } } } },
+                    },
+                  },
                 },
-                description: {
-                  type: Type.STRING,
-                  description: "A VIETNAMESE description of what happens in this scene.",
-                },
-                prompt: {
-                  type: Type.STRING,
-                  description: "A detailed, vivid prompt in ENGLISH for a text-to-video AI, based on the scene description.",
-                },
+                required: ['scene', 'description', 'prompt'],
               },
-              required: ['scene', 'description', 'prompt'],
             },
           },
-        },
-      });
+        });
+        const jsonText = response.text.trim();
+        const parsedResults = JSON.parse(jsonText);
+        setResults(parsedResults);
+      } else { // OpenAI
+        const openAISystemInstruction = `${systemInstruction}\n\n**OUTPUT FORMAT (CRITICAL):**\nYour final output must be a single, valid JSON object with one key: "scenes". The value of "scenes" should be an array of objects, where each object represents a scene. Each scene object must contain 'scene', 'description', and 'prompt' keys.`;
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${chatGptApiKey}`
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o',
+                messages: [
+                    { role: 'system', content: openAISystemInstruction },
+                    { role: 'user', content: userPrompt }
+                ],
+                response_format: { type: 'json_object' }
+            })
+        });
 
-      const jsonText = response.text.trim();
-      const parsedResults = JSON.parse(jsonText);
-      setResults(parsedResults);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const jsonText = data.choices[0].message.content;
+        const parsedResponse = JSON.parse(jsonText);
+        
+        if (!parsedResponse.scenes || !Array.isArray(parsedResponse.scenes)) {
+          throw new Error("Invalid response format from OpenAI. Expected a 'scenes' array.");
+        }
+        
+        setResults(parsedResponse.scenes);
+      }
 
     } catch (e) {
       console.error(e);
@@ -153,17 +240,23 @@ const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ apiKey }) => {
     }
   };
 
-  const handleCopyPrompt = (promptText: string, sceneNumber: number) => {
-    navigator.clipboard.writeText(promptText);
-    setCopiedScene(sceneNumber);
-    setTimeout(() => setCopiedScene(null), 2000);
+  const handleCopyPrompt = async (promptText: string, sceneNumber: number) => {
+    try {
+      await navigator.clipboard.writeText(promptText);
+      setCopiedScene(sceneNumber);
+      setTimeout(() => setCopiedScene(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      setError(`Could not copy text. Please copy it manually.`);
+      setTimeout(() => setError(null), 3000);
+    }
   };
   
   const handleDownloadPrompts = () => {
     const promptsOnly = results.reduce((acc, scene) => {
       acc[`scene_${scene.scene}`] = scene.prompt;
       return acc;
-    }, {} as Record<string, string>);
+    }, {} as Record<string, PromptObject>);
     
     const jsonString = JSON.stringify(promptsOnly, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });
@@ -190,7 +283,7 @@ const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ apiKey }) => {
     URL.revokeObjectURL(url);
   };
 
-  if (!apiKey) {
+  if (!apiKey && !chatGptApiKey) {
     return <ApiKeyPrompt />;
   }
 
@@ -224,6 +317,27 @@ const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ apiKey }) => {
               disabled={isGenerating}
             />
           </div>
+          <div>
+            <label className="block text-sm font-semibold mb-1">3. Chọn AI Model</label>
+            <div className="flex space-x-2 rounded-lg bg-slate-800 p-1 border border-slate-700">
+              <Button 
+                variant={apiProvider === 'google' ? 'active' : 'secondary'} 
+                onClick={() => setApiProvider('google')}
+                className="flex-1 text-xs sm:text-sm"
+                disabled={isGenerating}
+              >
+                Google Gemini
+              </Button>
+              <Button 
+                variant={apiProvider === 'openai' ? 'active' : 'secondary'} 
+                onClick={() => setApiProvider('openai')}
+                className="flex-1 text-xs sm:text-sm"
+                disabled={isGenerating}
+              >
+                OpenAI GPT-4o
+              </Button>
+            </div>
+          </div>
           <Button
             variant="primary"
             className="w-full text-lg py-3"
@@ -234,7 +348,7 @@ const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ apiKey }) => {
               <span className="flex items-center justify-center">
                 <Spinner /> Generating...
               </span>
-            ) : 'Tạo kịch bản & Prompt'}
+            ) : '4. Tạo kịch bản & Prompt'}
           </Button>
         </div>
         
@@ -275,9 +389,9 @@ const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ apiKey }) => {
                 <div>
                    <h5 className="text-sm font-semibold text-gray-100 mb-1">Câu lệnh (Prompt):</h5>
                    <div className="bg-slate-900 p-2 rounded-md font-mono text-xs text-yellow-300 relative">
-                    <pre className="whitespace-pre-wrap break-words">{scene.prompt}</pre>
+                    <pre className="whitespace-pre-wrap break-words">{JSON.stringify(scene.prompt, null, 2)}</pre>
                     <button 
-                      onClick={() => handleCopyPrompt(scene.prompt, scene.scene)} 
+                      onClick={() => handleCopyPrompt(JSON.stringify(scene.prompt, null, 2), scene.scene)} 
                       className="absolute top-1 right-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-1 px-2 text-[10px] rounded"
                       aria-label={`Copy prompt for scene ${scene.scene}`}
                     >
