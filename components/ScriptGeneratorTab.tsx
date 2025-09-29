@@ -1,13 +1,7 @@
-
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from '@google/genai';
 import Button from './shared/Button';
 import Input from './shared/Input';
-
-interface ScriptGeneratorTabProps {
-  apiKey: string;
-  chatGptApiKey: string;
-}
 
 // Define the new, detailed structure for the prompt object
 interface PromptObject {
@@ -41,11 +35,19 @@ interface Scene {
   prompt: PromptObject; // Update to use the new interface
 }
 
+interface ScriptGeneratorTabProps {
+  googleApiKey: string;
+  openaiApiKey: string;
+}
+
 const ApiKeyPrompt: React.FC = () => (
   <div className="bg-slate-900/50 p-6 rounded-lg border border-slate-700 text-center">
     <h3 className="text-lg font-bold text-white mb-2">Yêu cầu API Key</h3>
     <p className="text-gray-400">
-      Vui lòng vào tab 'Profile' để nhập API key của bạn để sử dụng tính năng này.
+      Vui lòng cấu hình API Key trong tab "Profile" để sử dụng công cụ này.
+    </p>
+    <p className="text-gray-500 text-sm mt-2">
+      Please configure your API Key in the "Profile" tab to use this tool.
     </p>
   </div>
 );
@@ -77,7 +79,7 @@ const parseDurationToSeconds = (durationStr: string): number | null => {
 };
 
 
-const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ apiKey, chatGptApiKey }) => {
+const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ googleApiKey, openaiApiKey }) => {
   const [idea, setIdea] = useState('');
   const [duration, setDuration] = useState('');
   const [results, setResults] = useState<Scene[]>([]);
@@ -139,12 +141,12 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
 }`;
 
   const handleGenerate = async () => {
-    if (apiProvider === 'google' && !apiKey) {
-      setError("Please set your Google AI API key in the 'Profile' tab.");
+    if (apiProvider === 'google' && !googleApiKey) {
+      setError("Chưa có Google AI API key. Vui lòng vào tab Profile để thêm key.");
       return;
     }
-    if (apiProvider === 'openai' && !chatGptApiKey) {
-      setError("Please set your Chat GPT API key in the 'Profile' tab.");
+    if (apiProvider === 'openai' && !openaiApiKey) {
+      setError("Chưa có Chat GPT API key. Vui lòng vào tab Profile để thêm key.");
       return;
     }
     if (!idea.trim()) {
@@ -167,7 +169,7 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
 
     try {
       if (apiProvider === 'google') {
-        const ai = new GoogleGenAI({ apiKey });
+        const ai = new GoogleGenAI({ apiKey: googleApiKey });
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
           contents: userPrompt,
@@ -185,8 +187,54 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
                     type: Type.OBJECT,
                     description: "A structured JSON prompt object for the video generation AI.",
                     properties: {
-                      Objective: { type: Type.STRING }, Persona: { type: Type.OBJECT, properties: { Role: { type: Type.STRING }, Tone: { type: Type.STRING }, Knowledge_Level: { type: Type.STRING } } }, Task_Instructions: { type: Type.ARRAY, items: { type: Type.STRING } }, Constraints: { type: Type.ARRAY, items: { type: Type.STRING } }, Input_Examples: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { Input: { type: Type.STRING }, Expected_Output: { type: Type.STRING } } } }, Output_Format: { type: Type.OBJECT, properties: { Type: { type: Type.STRING }, Structure: { type: Type.OBJECT, properties: { character_details: { type: Type.STRING }, setting_details: { type: Type.STRING }, key_action: { type: Type.STRING }, camera_direction: { type: Type.STRING } } } } },
+                      Objective: { type: Type.STRING },
+                      Persona: {
+                        type: Type.OBJECT,
+                        properties: {
+                          Role: { type: Type.STRING },
+                          Tone: { type: Type.STRING },
+                          Knowledge_Level: { type: Type.STRING },
+                        },
+                        required: ['Role', 'Tone', 'Knowledge_Level'],
+                      },
+                      Task_Instructions: {
+                        type: Type.ARRAY,
+                        items: { type: Type.STRING },
+                      },
+                      Constraints: {
+                        type: Type.ARRAY,
+                        items: { type: Type.STRING },
+                      },
+                      Input_Examples: {
+                        type: Type.ARRAY,
+                        items: {
+                          type: Type.OBJECT,
+                          properties: {
+                            Input: { type: Type.STRING },
+                            Expected_Output: { type: Type.STRING },
+                          },
+                          required: ['Input', 'Expected_Output'],
+                        },
+                      },
+                      Output_Format: {
+                        type: Type.OBJECT,
+                        properties: {
+                          Type: { type: Type.STRING },
+                          Structure: {
+                            type: Type.OBJECT,
+                            properties: {
+                              character_details: { type: Type.STRING },
+                              setting_details: { type: Type.STRING },
+                              key_action: { type: Type.STRING },
+                              camera_direction: { type: Type.STRING },
+                            },
+                            required: ['character_details', 'setting_details', 'key_action', 'camera_direction'],
+                          },
+                        },
+                        required: ['Type', 'Structure'],
+                      },
                     },
+                    required: ['Objective', 'Persona', 'Task_Instructions', 'Constraints', 'Input_Examples', 'Output_Format'],
                   },
                 },
                 required: ['scene', 'description', 'prompt'],
@@ -203,7 +251,7 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${chatGptApiKey}`
+                'Authorization': `Bearer ${openaiApiKey}`
             },
             body: JSON.stringify({
                 model: 'gpt-4o',
@@ -283,7 +331,7 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
     URL.revokeObjectURL(url);
   };
 
-  if (!apiKey && !chatGptApiKey) {
+  if (!googleApiKey && !openaiApiKey) {
     return <ApiKeyPrompt />;
   }
 
@@ -298,7 +346,7 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
             </label>
             <textarea
               id="idea-textarea"
-              className="w-full h-40 bg-slate-800 border border-slate-600 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              className="w-full h-40 bg-slate-800 border border-slate-600 rounded-md p-3 text-base text-gray-200 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
               placeholder="Ví dụ: Cuộc đại chiến tranh giành lãnh thổ giữa Kong và một con Gấu khổng lồ trong khu rừng rậm Amazon."
               value={idea}
               onChange={(e) => setIdea(e.target.value)}
