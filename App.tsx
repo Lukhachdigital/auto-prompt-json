@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from './components/Header';
 import Button from './components/shared/Button';
 import ScriptGeneratorTab from './components/ScriptGeneratorTab';
@@ -9,29 +9,18 @@ type Tab = 'script' | 'profile';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('script');
-  const [apiKey, setApiKey] = useState('');
-  const [chatGptApiKey, setChatGptApiKey] = useState('');
+  const [googleApiKey, setGoogleApiKey] = useState<string>(() => localStorage.getItem('googleApiKey') || '');
+  const [openaiApiKey, setOpenaiApiKey] = useState<string>(() => localStorage.getItem('openaiApiKey') || '');
 
-  useEffect(() => {
-    const savedApiKey = localStorage.getItem('googleApiKey');
-    if (savedApiKey) {
-      setApiKey(savedApiKey);
-    }
-    const savedChatGptKey = localStorage.getItem('chatGptApiKey');
-    if (savedChatGptKey) {
-      setChatGptApiKey(savedChatGptKey);
-    }
-  }, []);
-
-  const handleApiKeyChange = (newKey: string) => {
-    setApiKey(newKey);
-    localStorage.setItem('googleApiKey', newKey);
+  const handleGoogleKeySave = (key: string) => {
+    setGoogleApiKey(key);
+    localStorage.setItem('googleApiKey', key);
   };
-  
-  const handleChatGptApiKeyChange = (newKey: string) => {
-    setChatGptApiKey(newKey);
-    localStorage.setItem('chatGptApiKey', newKey);
-  }
+
+  const handleOpenaiKeySave = (key: string) => {
+    setOpenaiApiKey(key);
+    localStorage.setItem('openaiApiKey', key);
+  };
 
   const TabButton: React.FC<{ tabName: Tab; label: string }> = ({ tabName, label }) => (
     <Button
@@ -55,15 +44,13 @@ const App: React.FC = () => {
           </div>
 
           <div>
-            {activeTab === 'script' && <ScriptGeneratorTab apiKey={apiKey} />}
-            {activeTab === 'profile' && (
-              <SettingsTab 
-                apiKey={apiKey}
-                onApiKeyChange={handleApiKeyChange}
-                chatGptApiKey={chatGptApiKey}
-                onChatGptApiKeyChange={handleChatGptApiKeyChange}
-              />
-            )}
+            {activeTab === 'script' && <ScriptGeneratorTab googleApiKey={googleApiKey} openaiApiKey={openaiApiKey} />}
+            {activeTab === 'profile' && <SettingsTab 
+                googleApiKey={googleApiKey}
+                openaiApiKey={openaiApiKey}
+                onGoogleKeySave={handleGoogleKeySave}
+                onOpenaiKeySave={handleOpenaiKeySave}
+            />}
           </div>
 
         </main>
