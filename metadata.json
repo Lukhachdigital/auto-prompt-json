@@ -1,5 +1,5 @@
 {
-  "name": "Viết kịch bản và xuất Prompt Json LỮ KHÁCH",
+  "name": "Viết kịch bản và xuất Prompt Json LÀM YOUTUBE AI",
   "description": "A tool to generate a video script and corresponding JSON prompts from a simple content idea using the Gemini API.",
   "requestFramePermissions": []
 }
