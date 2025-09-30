@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const Header: React.FC = () => {
@@ -27,14 +26,24 @@ const Header: React.FC = () => {
             <span>Tặng MIỄN PHÍ</span>
           </h1>
         </div>
-        <a
-          href="https://lamyoutubeai.com/academy"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg shadow-lg hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-purple-400 sparkle-button self-center sm:self-auto"
-        >
-          Tham gia khóa học AI
-        </a>
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <a
+            href="https://lamyoutubeai.com/vip"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg shadow-lg hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-purple-400 sparkle-button"
+          >
+            Hỗ trợ VIP
+          </a>
+          <a
+            href="https://lamyoutubeai.com/academy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-green-400 via-teal-500 to-cyan-600 rounded-lg shadow-lg hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-teal-400"
+          >
+            Tham gia khóa học AI
+          </a>
+        </div>
       </header>
     </>
   );
