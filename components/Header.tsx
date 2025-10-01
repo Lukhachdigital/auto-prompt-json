@@ -28,7 +28,7 @@ const Header: React.FC = () => {
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <a
-            href="https://lamyoutubeai.com/vip"
+            href="https://lamyoutubeai.com/support"
             target="_blank"
             rel="noopener noreferrer"
             className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg shadow-lg hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-purple-400 sparkle-button"
