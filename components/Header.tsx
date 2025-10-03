@@ -41,7 +41,7 @@ const Header: React.FC = () => {
             rel="noopener noreferrer"
             className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-green-400 via-teal-500 to-cyan-600 rounded-lg shadow-lg hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-teal-400"
           >
-            Tham gia khóa học AI
+            Học Youtube - AI
           </a>
         </div>
       </header>
