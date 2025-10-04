@@ -482,7 +482,7 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
                     <pre className="whitespace-pre-wrap break-words">{JSON.stringify(scene.prompt, null, 2)}</pre>
                     <button 
                       onClick={() => handleCopyPrompt(JSON.stringify(scene.prompt, null, 2), scene.scene)} 
-                      className="absolute top-1 right-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-1 px-2 text-[10px] rounded"
+                      className="absolute top-1 right-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-1 px-2 text-[10px] rounded z-10"
                       aria-label={`Copy prompt for scene ${scene.scene}`}
                     >
                       {copiedScene === scene.scene ? 'Copied!' : 'Copy'}
