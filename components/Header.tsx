@@ -29,7 +29,7 @@ const Header: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start text-center sm:text-left gap-4">
           <h1 className="text-base sm:text-lg font-bold flex items-center flex-wrap justify-center sm:justify-start gap-x-2">
             <a
-                href="/mua-video-giao-trinh"
+                href="https://lamyoutubeai.com/mua-video-giao-trinh"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 rounded-lg shadow-xl hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-orange-400 pulse-button"
@@ -48,7 +48,7 @@ const Header: React.FC = () => {
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <a
-            href="/support"
+            href="https://lamyoutubeai.com/support"
             target="_blank"
             rel="noopener noreferrer"
             className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg shadow-lg hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-purple-400 sparkle-button"
@@ -56,7 +56,7 @@ const Header: React.FC = () => {
             Giải Đáp Và Hỗ Trợ
           </a>
           <a
-            href="/academy"
+            href="https://lamyoutubeai.com/academy"
             target="_blank"
             rel="noopener noreferrer"
             className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-green-400 via-teal-500 to-cyan-600 rounded-lg shadow-lg hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-teal-400"
