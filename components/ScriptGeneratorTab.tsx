@@ -330,16 +330,50 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
     }
   };
 
-  const handleCopyPrompt = async (promptText: string, sceneNumber: number) => {
+  const handleCopyPrompt = (promptText: string, sceneNumber: number) => {
+    // Modern approach with fallback
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(promptText).then(() => {
+        setCopiedScene(sceneNumber);
+        setTimeout(() => setCopiedScene(null), 2000);
+      }).catch(err => {
+        console.warn('navigator.clipboard failed, falling back to execCommand.', err);
+        fallbackCopyTextToClipboard(promptText, sceneNumber);
+      });
+    } else {
+      console.warn('navigator.clipboard not available, falling back to execCommand.');
+      fallbackCopyTextToClipboard(promptText, sceneNumber);
+    }
+  };
+
+  const fallbackCopyTextToClipboard = (text: string, sceneNumber: number) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+
+    // Avoid scrolling to bottom
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
     try {
-      await navigator.clipboard.writeText(promptText);
-      setCopiedScene(sceneNumber);
-      setTimeout(() => setCopiedScene(null), 2000);
+      const successful = document.execCommand('copy');
+      if (successful) {
+        setCopiedScene(sceneNumber);
+        setTimeout(() => setCopiedScene(null), 2000);
+      } else {
+        throw new Error('Fallback copy failed');
+      }
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error('Fallback: Oops, unable to copy', err);
       setError(`Could not copy text. Please copy it manually.`);
       setTimeout(() => setError(null), 3000);
     }
+
+    document.body.removeChild(textArea);
   };
   
   const handleDownloadPrompts = () => {
