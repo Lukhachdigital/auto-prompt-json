@@ -331,49 +331,43 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
   };
 
   const handleCopyPrompt = (promptText: string, sceneNumber: number) => {
-    // Modern approach with fallback
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(promptText).then(() => {
-        setCopiedScene(sceneNumber);
-        setTimeout(() => setCopiedScene(null), 2000);
-      }).catch(err => {
-        console.warn('navigator.clipboard failed, falling back to execCommand.', err);
-        fallbackCopyTextToClipboard(promptText, sceneNumber);
-      });
-    } else {
-      console.warn('navigator.clipboard not available, falling back to execCommand.');
-      fallbackCopyTextToClipboard(promptText, sceneNumber);
-    }
-  };
-
-  const fallbackCopyTextToClipboard = (text: string, sceneNumber: number) => {
     const textArea = document.createElement("textarea");
-    textArea.value = text;
+    textArea.value = promptText;
 
-    // Avoid scrolling to bottom
-    textArea.style.top = "0";
-    textArea.style.left = "0";
-    textArea.style.position = "fixed";
+    // --- Crucial styling to prevent screen flicker and scrolling ---
+    textArea.style.position = 'fixed';
+    textArea.style.top = '-9999px';
+    textArea.style.left = '-9999px';
+    textArea.style.width = '2em';
+    textArea.style.height = '2em';
+    textArea.style.padding = '0';
+    textArea.style.border = 'none';
+    textArea.style.outline = 'none';
+    textArea.style.boxShadow = 'none';
+    textArea.style.background = 'transparent';
 
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
 
+    let successful = false;
     try {
-      const successful = document.execCommand('copy');
-      if (successful) {
-        setCopiedScene(sceneNumber);
-        setTimeout(() => setCopiedScene(null), 2000);
-      } else {
-        throw new Error('Fallback copy failed');
-      }
+        successful = document.execCommand('copy');
     } catch (err) {
-      console.error('Fallback: Oops, unable to copy', err);
-      setError(`Could not copy text. Please copy it manually.`);
-      setTimeout(() => setError(null), 3000);
+        console.error('An error occurred while trying to copy text: ', err);
+        successful = false;
     }
 
     document.body.removeChild(textArea);
+
+    if (successful) {
+        setCopiedScene(sceneNumber);
+        setTimeout(() => setCopiedScene(null), 2000);
+    } else {
+        setError(`Could not copy text. Please copy it manually.`);
+        // Clear the error after a few seconds
+        setTimeout(() => setError(null), 4000);
+    }
   };
   
   const handleDownloadPrompts = () => {
