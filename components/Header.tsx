@@ -11,11 +11,31 @@ const Header: React.FC = () => {
         .sparkle-button {
           animation: subtle-glow 4s ease-in-out infinite;
         }
+        @keyframes pulse-glow {
+          0%, 100% { 
+            transform: scale(1);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.6), 0 0 10px rgba(239, 68, 68, 0.5); 
+          }
+          50% { 
+            transform: scale(1.05);
+            box-shadow: 0 0 35px rgba(245, 158, 11, 0.9), 0 0 15px rgba(239, 68, 68, 0.7); 
+          }
+        }
+        .pulse-button {
+          animation: pulse-glow 3s ease-in-out infinite;
+        }
       `}</style>
       <header className="flex flex-col gap-y-4 sm:flex-row sm:justify-between sm:items-center text-white mb-6">
         <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start text-center sm:text-left gap-4">
           <h1 className="text-base sm:text-lg font-bold flex items-center flex-wrap justify-center sm:justify-start gap-x-2">
-            <span>Tạo kịch bản & Prompt JSON</span>
+            <a
+                href="https://lamyoutubeai.com/mua-video-giao-trinh"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 rounded-lg shadow-xl hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-orange-400 pulse-button"
+            >
+                Giáo trình bức phá
+            </a>
             <span className="text-slate-500 hidden sm:inline">|</span>
             <span className="font-bold text-lg sm:text-xl">
                 <span className="text-white">AI</span><span className="text-blue-500">Creators</span>
