@@ -478,11 +478,11 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
                 </div>
                 <div>
                    <h5 className="text-sm font-semibold text-gray-100 mb-1">Câu lệnh (Prompt):</h5>
-                   <div className="bg-slate-900 p-2 rounded-md font-mono text-xs text-yellow-300 relative">
-                    <pre className="whitespace-pre-wrap break-words pr-12">{JSON.stringify(scene.prompt, null, 2)}</pre>
+                   <div className="bg-slate-900 rounded-md font-mono text-xs text-yellow-300 flex items-start p-2 gap-2">
+                    <pre className="whitespace-pre-wrap break-words flex-grow">{JSON.stringify(scene.prompt, null, 2)}</pre>
                     <button 
                       onClick={() => handleCopyPrompt(JSON.stringify(scene.prompt, null, 2), scene.scene)} 
-                      className="absolute top-1 right-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-1 px-2 text-[10px] rounded z-10"
+                      className="flex-shrink-0 bg-slate-700 hover:bg-slate-600 text-white font-bold py-1 px-2 text-[10px] rounded sticky top-2"
                       aria-label={`Copy prompt for scene ${scene.scene}`}
                     >
                       {copiedScene === scene.scene ? 'Copied!' : 'Copy'}
