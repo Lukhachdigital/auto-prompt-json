@@ -28,13 +28,12 @@ const Header: React.FC = () => {
       <header className="flex flex-col gap-y-4 sm:flex-row sm:justify-between sm:items-center text-white mb-6">
         <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start text-center sm:text-left gap-4">
           <h1 className="text-base sm:text-lg font-bold flex items-center flex-wrap justify-center sm:justify-start gap-x-2">
+            <span>Ứng dụng được tạo bởi </span>
             <span className="font-bold text-lg sm:text-xl">
-                <span className="text-white">AI</span><span className="text-blue-500">Creators</span>
-                <span className="text-slate-400 mx-1.5">|</span>
-                <span className="text-white">Làm </span><span className="text-red-600">Youtube</span><span className="text-white"> AI</span>
+              <span className="text-white">AI</span><span className="text-blue-500">Creators</span>
             </span>
-            <span className="text-slate-500 hidden sm:inline">|</span>
-            <span>Tặng MIỄN PHÍ</span>
+            <span className="text-slate-500 mx-1.5">|</span>
+            <span>Chỉ tặng MIỄN PHÍ</span>
           </h1>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-4">
