@@ -39,14 +39,12 @@ const Header: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <a
             href="https://lamyoutubeai.com/video-doc-quyen"
-            rel="noopener noreferrer"
             className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg shadow-lg hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-purple-400 sparkle-button"
           >
             Tuyệt Chiêu
           </a>
           <a
             href="https://lamyoutubeai.com/video-giao-trinh"
-            rel="noopener noreferrer"
             className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-green-400 via-teal-500 to-cyan-600 rounded-lg shadow-lg hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-teal-400"
           >
             Giáo trình bức phá
