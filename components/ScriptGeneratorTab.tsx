@@ -36,21 +36,9 @@ interface Scene {
 }
 
 interface ScriptGeneratorTabProps {
-  googleApiKey: string;
+  // FIX: Removed googleApiKey prop.
   openaiApiKey: string;
 }
-
-const ApiKeyPrompt: React.FC = () => (
-  <div className="bg-slate-900/50 p-6 rounded-lg border border-slate-700 text-center">
-    <h3 className="text-lg font-bold text-white mb-2">Yêu cầu API Key</h3>
-    <p className="text-gray-400">
-      Vui lòng cấu hình API Key trong tab "Profile" để sử dụng công cụ này.
-    </p>
-    <p className="text-gray-500 text-sm mt-2">
-      Please configure your API Key in the "Profile" tab to use this tool.
-    </p>
-  </div>
-);
 
 // Function to parse duration string into seconds
 const parseDurationToSeconds = (durationStr: string): number | null => {
@@ -122,7 +110,7 @@ const getApiErrorMessage = (error: unknown): string => {
 };
 
 
-const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ googleApiKey, openaiApiKey }) => {
+const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ openaiApiKey }) => {
   const [idea, setIdea] = useState('');
   const [duration, setDuration] = useState('');
   const [results, setResults] = useState<Scene[]>([]);
@@ -184,10 +172,7 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
 }`;
 
   const handleGenerate = async () => {
-    if (apiProvider === 'google' && !googleApiKey) {
-      setError("Chưa có Google AI API key. Vui lòng vào tab Profile để thêm key.");
-      return;
-    }
+    // FIX: Removed check for googleApiKey prop. Assumes process.env.API_KEY is set.
     if (apiProvider === 'openai' && !openaiApiKey) {
       setError("Chưa có Chat GPT API key. Vui lòng vào tab Profile để thêm key.");
       return;
@@ -212,7 +197,8 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
 
     try {
       if (apiProvider === 'google') {
-        const ai = new GoogleGenAI({ apiKey: googleApiKey });
+        // FIX: Use process.env.API_KEY directly for Google GenAI client.
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
           contents: userPrompt,
@@ -401,10 +387,7 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
     URL.revokeObjectURL(url);
   };
 
-  if (!googleApiKey && !openaiApiKey) {
-    return <ApiKeyPrompt />;
-  }
-
+  // FIX: Removed conditional rendering that hid the UI. The UI should always be visible.
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
