@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from '@google/genai';
 import Button from './shared/Button';
@@ -36,7 +37,7 @@ interface Scene {
 }
 
 interface ScriptGeneratorTabProps {
-  // FIX: Removed googleApiKey prop.
+  googleApiKey: string;
   openaiApiKey: string;
 }
 
@@ -110,7 +111,7 @@ const getApiErrorMessage = (error: unknown): string => {
 };
 
 
-const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ openaiApiKey }) => {
+const ScriptGeneratorTab: React.FC<ScriptGeneratorTabProps> = ({ googleApiKey, openaiApiKey }) => {
   const [idea, setIdea] = useState('');
   const [duration, setDuration] = useState('');
   const [results, setResults] = useState<Scene[]>([]);
@@ -172,7 +173,10 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
 }`;
 
   const handleGenerate = async () => {
-    // FIX: Removed check for googleApiKey prop. Assumes process.env.API_KEY is set.
+    if (apiProvider === 'google' && !googleApiKey) {
+      setError("Chưa có Google Gemini API key. Vui lòng vào tab Profile để thêm key.");
+      return;
+    }
     if (apiProvider === 'openai' && !openaiApiKey) {
       setError("Chưa có Chat GPT API key. Vui lòng vào tab Profile để thêm key.");
       return;
@@ -197,8 +201,7 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
 
     try {
       if (apiProvider === 'google') {
-        // FIX: Use process.env.API_KEY directly for Google GenAI client.
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI({ apiKey: googleApiKey });
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
           contents: userPrompt,
@@ -387,9 +390,16 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
     URL.revokeObjectURL(url);
   };
 
-  // FIX: Removed conditional rendering that hid the UI. The UI should always be visible.
+  const showUi = !googleApiKey && apiProvider === 'google';
+
   return (
     <div className="space-y-6">
+       {showUi ? (
+        <div className="text-center p-8 bg-slate-900/50 border border-slate-700 rounded-lg">
+          <h2 className="text-xl font-bold mb-2">Google Gemini API Key Required</h2>
+          <p className="text-gray-400">Please go to the "Profile" tab to set your Google Gemini API key.</p>
+        </div>
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Input Column */}
         <div className="space-y-4 bg-slate-900/50 p-4 rounded-lg border border-slate-700">
@@ -507,6 +517,7 @@ For each scene, the "prompt" field must be a JSON object that strictly adheres t
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };
