@@ -30,7 +30,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen p-2 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto mt-10">
         <Header />
         <main className="bg-[#1e293b] text-gray-300 p-3 sm:p-6 rounded-lg border border-slate-700 shadow-2xl space-y-6">
           
