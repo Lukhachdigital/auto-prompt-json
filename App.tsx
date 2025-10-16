@@ -9,10 +9,14 @@ type Tab = 'script' | 'profile';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('script');
-  // FIX: Removed Google API key state. It must be read from environment variables.
+  const [googleApiKey, setGoogleApiKey] = useState<string>(() => localStorage.getItem('googleApiKey') || '');
   const [openaiApiKey, setOpenaiApiKey] = useState<string>(() => localStorage.getItem('openaiApiKey') || '');
 
-  // FIX: Removed handler for saving Google API key.
+  const handleGoogleKeySave = (key: string) => {
+    setGoogleApiKey(key);
+    localStorage.setItem('googleApiKey', key);
+  };
+
   const handleOpenaiKeySave = (key: string) => {
     setOpenaiApiKey(key);
     localStorage.setItem('openaiApiKey', key);
@@ -40,11 +44,11 @@ const App: React.FC = () => {
           </div>
 
           <div>
-            {/* FIX: Removed googleApiKey prop. */}
-            {activeTab === 'script' && <ScriptGeneratorTab openaiApiKey={openaiApiKey} />}
-            {/* FIX: Removed googleApiKey and onGoogleKeySave props. */}
+            {activeTab === 'script' && <ScriptGeneratorTab googleApiKey={googleApiKey} openaiApiKey={openaiApiKey} />}
             {activeTab === 'profile' && <SettingsTab 
+                googleApiKey={googleApiKey}
                 openaiApiKey={openaiApiKey}
+                onGoogleKeySave={handleGoogleKeySave}
                 onOpenaiKeySave={handleOpenaiKeySave}
             />}
           </div>
