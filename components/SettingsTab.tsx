@@ -19,24 +19,17 @@ const SocialLink: React.FC<{ platform: string, url:string, handle: string, icon:
 );
 
 interface SettingsTabProps {
-  googleApiKey: string;
+  // FIX: Removed googleApiKey and onGoogleKeySave from props.
   openaiApiKey: string;
-  onGoogleKeySave: (key: string) => void;
   onOpenaiKeySave: (key: string) => void;
 }
 
-const SettingsTab: React.FC<SettingsTabProps> = ({ googleApiKey, openaiApiKey, onGoogleKeySave, onOpenaiKeySave }) => {
-  const [googleKeyInput, setGoogleKeyInput] = useState(googleApiKey);
+const SettingsTab: React.FC<SettingsTabProps> = ({ openaiApiKey, onOpenaiKeySave }) => {
+  // FIX: Removed state for Google API key.
   const [openaiKeyInput, setOpenaiKeyInput] = useState(openaiApiKey);
-  const [googleKeyStatus, setGoogleKeyStatus] = useState('');
   const [openaiKeyStatus, setOpenaiKeyStatus] = useState('');
 
-  const handleSaveGoogle = () => {
-    onGoogleKeySave(googleKeyInput);
-    setGoogleKeyStatus('Đã lưu!');
-    setTimeout(() => setGoogleKeyStatus(''), 2000);
-  };
-
+  // FIX: Removed save handler for Google API key.
   const handleSaveOpenai = () => {
     onOpenaiKeySave(openaiKeyInput);
     setOpenaiKeyStatus('Đã lưu!');
@@ -76,26 +69,15 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ googleApiKey, openaiApiKey, o
       {/* API Key Section */}
       <div className="max-w-xl mx-auto bg-slate-900/50 p-4 sm:p-6 rounded-lg border border-slate-700">
         <h3 className="text-xl font-bold text-white mb-2 text-center">Cấu hình API Key</h3>
-        <p className="text-center text-gray-400 mb-6 text-sm">(nhập 1 trong 2 API Key bên dưới)</p>
+        {/* FIX: Updated helper text to reflect Google API key is from environment. */}
+        <p className="text-center text-gray-400 mb-6 text-sm">
+          Google Gemini API key is configured via an environment variable.
+          <br />
+          Only configure the Chat GPT API key if you intend to use it.
+        </p>
         
         <div className="space-y-6">
-          {/* Google API Key */}
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <label htmlFor="google-api-key" className="font-semibold text-white">Google AI API Key:</label>
-              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:underline">Lấy API Key</a>
-            </div>
-            <Input 
-              id="google-api-key"
-              type="password"
-              placeholder="Enter your Google AI API key"
-              value={googleKeyInput}
-              onChange={(e) => setGoogleKeyInput(e.target.value)}
-            />
-            <Button onClick={handleSaveGoogle} className="w-full">
-              {googleKeyStatus || 'Save Google Key'}
-            </Button>
-          </div>
+          {/* FIX: Removed Google API Key input section. */}
 
           {/* OpenAI API Key */}
           <div className="space-y-2">
@@ -128,7 +110,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ googleApiKey, openaiApiKey, o
         <SocialLink platform="Youtube" handle="@lukhach-digital" url="https://www.youtube.com/channel/UCwSbzgfgu1iMfOR__AB4QGQ?sub_confirmation=1" icon={YoutubeIcon} />
         <SocialLink platform="Facebook" handle="huynhxuyenson" url="https://facebook.com/huynhxuyenson" icon={FacebookIcon} />
         <SocialLink platform="Tiktok" handle="@lamyoutubeai" url="https://www.tiktok.com/@lamyoutubeai" icon={TiktokIcon} />
-        <SocialLink platform="Zalo" handle="0979.007.367" url="https://zalo.me/0979007367" icon={ZaloIcon} />
+        <SocialLink platform="Zalo" handle="0979.007.367" url="https://zalo.me/g/fzzokk254" icon={ZaloIcon} />
       </div>
     </div>
   );
