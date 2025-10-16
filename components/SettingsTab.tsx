@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Input from './shared/Input';
 import Button from './shared/Button';
@@ -19,17 +20,24 @@ const SocialLink: React.FC<{ platform: string, url:string, handle: string, icon:
 );
 
 interface SettingsTabProps {
-  // FIX: Removed googleApiKey and onGoogleKeySave from props.
+  googleApiKey: string;
+  onGoogleKeySave: (key: string) => void;
   openaiApiKey: string;
   onOpenaiKeySave: (key: string) => void;
 }
 
-const SettingsTab: React.FC<SettingsTabProps> = ({ openaiApiKey, onOpenaiKeySave }) => {
-  // FIX: Removed state for Google API key.
+const SettingsTab: React.FC<SettingsTabProps> = ({ googleApiKey, onGoogleKeySave, openaiApiKey, onOpenaiKeySave }) => {
+  const [googleKeyInput, setGoogleKeyInput] = useState(googleApiKey);
   const [openaiKeyInput, setOpenaiKeyInput] = useState(openaiApiKey);
+  const [googleKeyStatus, setGoogleKeyStatus] = useState('');
   const [openaiKeyStatus, setOpenaiKeyStatus] = useState('');
 
-  // FIX: Removed save handler for Google API key.
+  const handleSaveGoogle = () => {
+    onGoogleKeySave(googleKeyInput);
+    setGoogleKeyStatus('Đã lưu!');
+    setTimeout(() => setGoogleKeyStatus(''), 2000);
+  };
+
   const handleSaveOpenai = () => {
     onOpenaiKeySave(openaiKeyInput);
     setOpenaiKeyStatus('Đã lưu!');
@@ -69,15 +77,30 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ openaiApiKey, onOpenaiKeySave
       {/* API Key Section */}
       <div className="max-w-xl mx-auto bg-slate-900/50 p-4 sm:p-6 rounded-lg border border-slate-700">
         <h3 className="text-xl font-bold text-white mb-2 text-center">Cấu hình API Key</h3>
-        {/* FIX: Updated helper text to reflect Google API key is from environment. */}
         <p className="text-center text-gray-400 mb-6 text-sm">
-          Google Gemini API key is configured via an environment variable.
+          Bạn cần cung cấp API key để ứng dụng có thể hoạt động.
           <br />
-          Only configure the Chat GPT API key if you intend to use it.
+          API key sẽ được lưu trực tiếp trên trình duyệt của bạn.
         </p>
         
         <div className="space-y-6">
-          {/* FIX: Removed Google API Key input section. */}
+          {/* Google API Key */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <label htmlFor="google-api-key" className="font-semibold text-white">Google Gemini API Key:</label>
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:underline">Lấy API Key</a>
+            </div>
+            <Input
+              id="google-api-key"
+              type="password"
+              placeholder="Enter your Google Gemini API key"
+              value={googleKeyInput}
+              onChange={(e) => setGoogleKeyInput(e.target.value)}
+            />
+            <Button onClick={handleSaveGoogle} className="w-full">
+               {googleKeyStatus || 'Save Google Key'}
+            </Button>
+          </div>
 
           {/* OpenAI API Key */}
           <div className="space-y-2">
