@@ -28,15 +28,6 @@ const Header: React.FC = () => {
       <header className="flex flex-col gap-y-4 sm:flex-row sm:justify-between sm:items-center text-white mb-6">
         <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start text-center sm:text-left gap-4">
           <h1 className="text-base sm:text-lg font-bold flex items-center flex-wrap justify-center sm:justify-start gap-x-2">
-            <a
-                href="https://lamyoutubeai.com/mua-video-giao-trinh"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 rounded-lg shadow-xl hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-orange-400 pulse-button"
-            >
-                Giáo trình bức phá
-            </a>
-            <span className="text-slate-500 hidden sm:inline">|</span>
             <span className="font-bold text-lg sm:text-xl">
                 <span className="text-white">AI</span><span className="text-blue-500">Creators</span>
                 <span className="text-slate-400 mx-1.5">|</span>
@@ -48,20 +39,20 @@ const Header: React.FC = () => {
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <a
-            href="https://lamyoutubeai.com/support"
+            href="https://lamyoutubeai.com/video-doc-quyen"
             target="_blank"
             rel="noopener noreferrer"
             className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg shadow-lg hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-purple-400 sparkle-button"
           >
-            Giải Đáp Và Hỗ Trợ
+            Tuyệt Chiêu
           </a>
           <a
-            href="https://lamyoutubeai.com/academy"
+            href="https://lamyoutubeai.com/video-giao-trinh"
             target="_blank"
             rel="noopener noreferrer"
             className="px-6 py-3 text-base font-bold text-white bg-gradient-to-r from-green-400 via-teal-500 to-cyan-600 rounded-lg shadow-lg hover:scale-110 transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-teal-400"
           >
-            Học Youtube - AI
+            Giáo trình bức phá
           </a>
         </div>
       </header>
